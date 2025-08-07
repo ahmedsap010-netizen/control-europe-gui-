@@ -1,0 +1,38 @@
+-- RemoteSpy by RoboLOx | Developer Tool
+local RS = game:GetService("ReplicatedStorage")
+local LogService = game:GetService("LogService")
+
+local function log(name, remoteType, args)
+    print(string.format("[RemoteSpy] %s (%s):", name, remoteType))
+    for i, v in ipairs(args) do
+        print("  Arg " .. i .. ": " .. tostring(v))
+    end
+end
+
+-- Spy for RemoteEvents
+for _, remote in pairs(RS:GetDescendants()) do
+    if remote:IsA("RemoteEvent") then
+        remote.OnClientEvent:Connect(function(...)
+            log(remote.Name, "RemoteEvent", {...})
+        end)
+    elseif remote:IsA("RemoteFunction") then
+        remote.OnClientInvoke = function(...)
+            log(remote.Name, "RemoteFunction", {...})
+        end
+    end
+end
+
+-- Also hook new ones
+RS.DescendantAdded:Connect(function(remote)
+    if remote:IsA("RemoteEvent") then
+        remote.OnClientEvent:Connect(function(...)
+            log(remote.Name, "RemoteEvent", {...})
+        end)
+    elseif remote:IsA("RemoteFunction") then
+        remote.OnClientInvoke = function(...)
+            log(remote.Name, "RemoteFunction", {...})
+        end
+    end
+end)
+
+print("[✅ RemoteSpy Started] الآن راقب الـ Console أثناء اللعب.")
